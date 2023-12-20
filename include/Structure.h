@@ -44,7 +44,7 @@ public:
     cell_structure();
     ~cell_structure();
     void Initial(int& it, double& E, double& nu, int& gaus_sum,
-        const Eigen::MatrixXd& node, const Eigen::MatrixXi& cell);
+    const vector<nodes>& node, const vector<int>& cell);
     
 
     vector<vector<double>> location;
@@ -66,7 +66,7 @@ public:
     int ndof;
 
     vector<nodes> point;
-    vector<cell_structure> cell_ite;
+    vector<cell_structure> cell;
 
     Eigen::SparseVector<double> F;
     

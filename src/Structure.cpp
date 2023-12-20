@@ -20,7 +20,7 @@ void tria::read_dat_file(const string& datFilePath)
         int direct;
         double value;
     };
-    vector<vector<force>> fo;
+    vector<force> fo;
 
     string line, subline;
     while (getline(datFile, line)) {
@@ -47,15 +47,15 @@ void tria::read_dat_file(const string& datFilePath)
             }
         } else if (key == "elements:") {
             iss >> cell_sum;
-            cell_ite.resize(cell_sum);
+            cell.resize(cell_sum);
             for (int i = 0; i < cell_sum; i++) {
-                cell_structure cell_ite[i];
+                cell_structure cell[i];
             }
         } else if(key == "elements_list:") {
             for (int i = 0; i < cell_sum; ++i) {
                 getline(datFile, subline);
                 istringstream is(subline);
-                is >> cell_ite[i].id >> cell_ite[i].cell_node[0] >> cell_ite[i].cell_node[1] >> cell_ite[i].cell_node[2] >> cell_ite[i].cell_node[3];
+                is >> cell[i].id >> cell[i].cell_node[0] >> cell[i].cell_node[1] >> cell[i].cell_node[2] >> cell[i].cell_node[3];
             }
         } else if (key == "E:") {
             iss >> E;
@@ -85,8 +85,8 @@ void tria::read_dat_file(const string& datFilePath)
                 break;
                 } else {
                     istringstream js(line);
-                    fo.push_back(vector<force>(3));
-                    js >> fo.back()[0].id >> fo.back()[1].direct >> fo.back()[2].value;
+                    fo.push_back(force());
+                    js >> fo.back().id >> fo.back().direct >> fo.back().value;
                 }
             }
         } else if (key == "end") {
@@ -105,15 +105,42 @@ void tria::read_dat_file(const string& datFilePath)
     //     cout << point[i].id << " " << point[i].coordinate[0] << " " << point[i].coordinate[1] << endl;
     // }
     // for (int i = 0; i < cell_sum; ++i) {
-    //     cout << cell_ite[i].id << " " << cell_ite[i].cell_node[0] << " " << cell_ite[i].cell_node[1] << " " << cell_ite[i].cell_node[2] << " " << cell_ite[i].cell_node[3] << endl;
+    //     cout << cell[i].id << " " << cell[i].cell_node[0] << " " << cell[i].cell_node[1] << " " << cell[i].cell_node[2] << " " << cell[i].cell_node[3] << endl;
     // }
     // for (int i = 0; i < boudary.size(); ++i) {
     //     cout << boudary[i][0] << " " << boudary[i][1] << endl;
     // }
     // for (int i = 0; i < fo.size(); ++i) {
-    //     cout << fo[i][0].id << " " << fo[i][1].direct << " " << fo[i][2].value << endl;
+    //     cout << fo[i].id << " " << fo[i].direct << " " << fo[i].value << endl;
     // }
+    
+    // element initial
+    for (int i = 0; i < cell_sum; i++) {
+        cell[i].Initial(i, E, nu, gauss_num, point, cell[i].cell_node);
+    }
 
+    // load setting
+    F.resize(ndof);
+    for (int i = 0; i < fo.size(); ++i) {
+        F.coeffRef(-1 + fo[i].id * 2 - (2 - fo[i].direct)) = fo[i].value;
+    }
+
+    // boundary condition
+    Eigen::VectorXd xx = Eigen::VectorXd::Ones(ndof);
+	Eigen::VectorXd yy = Eigen::VectorXd::Zero(ndof);
+    for (int i = 0; i < boudary.size(); ++i) {
+        xx.coeffRef(-1 + boudary[i][0] * 2 - (2 - boudary[i][1])) = 0;
+        yy.coeffRef(-1 + boudary[i][0] * 2 - (2 - boudary[i][1])) = 1;
+    }
+    diagonalmatrix_one = xx.asDiagonal();
+	diagonalmatrix_two = yy.asDiagonal();
+
+}
+
+void cell_structure::Initial(int& it, double& E, double& nu, int& gaus_sum,
+    const vector<nodes>& node, const vector<int>& cell)
+{
+    
     
 }
 
