@@ -1,48 +1,12 @@
 #include "Structure.h"
 #include <iostream>
-#include <fstream>
-#include <string>
-#include <sstream>
+
 
 
 int main()
 {   
     using namespace std;
-    int num_of_nodes;
-    string datFilePath = "mesh_model.dat";
-    vector<nodes*> point;
-    ifstream datFile(datFilePath);
-    if (!datFile.is_open()) {
-        cerr << "Error: Unable to open dat file: " << datFilePath << endl;
-        return 1;
-    }
-
-    string line, subline;
-    while (getline(datFile, line)) {
-        if (line.empty()) {
-            continue;
-        }
-
-        istringstream iss(line);
-        string key;
-        iss >> key;
-
-        if (key == "nodes:") {
-            iss >> num_of_nodes;
-            point.reserve(num_of_nodes);
-            for (int i = 0; i < num_of_nodes; i++) {
-		        point[i] = new nodes();
-	        }
-        } else if (key == "nodes_list:") {
-             for (int i = 0; i < num_of_nodes; ++i) {
-                getline(datFile, subline);
-                istringstream is(subline);
-                is >> point[i]->nodes_id >> point[i]->node_coordinate[0] >> point[i]->node_coordinate[1];
-            }
-        } 
-    }
-    for (int i = 0; i < num_of_nodes; ++i) {
-        cout << point[i]->nodes_id << " " << point[i]->node_coordinate[0] << " " << point[i]->node_coordinate[1] << endl;
-    }
+    tria triangulation;
+    triangulation.read_dat_file("test.dat");
     return 0;
 }

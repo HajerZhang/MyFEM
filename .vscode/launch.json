@@ -15,7 +15,7 @@
         //是否进入后暂停
         "stopAtEntry": false,
         //工作目录
-        "cwd": "${workspaceFolder}/src",
+        "cwd": "${workspaceFolder}",
         "environment": [],
          //是否使用外部终端
         "externalConsole": false,

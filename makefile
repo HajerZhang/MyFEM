@@ -21,12 +21,12 @@ all: release
 
 # Build release executable
 release: $(OBJ_FILES)
-	$(CXX) $(CXXFLAGS) $^ -O3 -o $(TARGET)
+	$(CXX) $(CXXFLAGS) $^ -O3 -o $(TARGET) 
 
 # Build debug executable
 debug: CXXFLAGS += $(DEBUGFLAGS)
 debug: $(OBJ_FILES)
-	$(CXX) $(CXXFLAGS) $^ -o $(TARGET_DEBUG) -Wall -address -fsanitize=memory 
+	$(CXX) $(CXXFLAGS) $^ -o $(TARGET_DEBUG) -Wall -fsanitize=address #-fsanitize=memory 
 	
 # -address -fsanitize=memory 
 # this is for memory leak detection

@@ -1,4 +1,4 @@
-def generate_dat_file(model_name, nelx, nely, domain_size):
+def generate_dat_file(model_name, E, nu, gauss, nelx, nely, domain_size):
     # Calculate node coordinates
     nodes = []
     node_id = 1
@@ -25,13 +25,16 @@ def generate_dat_file(model_name, nelx, nely, domain_size):
     # Write to dat file
     with open(f"{model_name}.dat", "w") as file:
         file.write(f"model: {model_name}\n")
+        file.write(f"E: {E}\n")
+        file.write(f"nu: {nu}\n")
+        file.write(f"gauss: {gauss}\n")
         file.write(f"nodes: {len(nodes)}\n")
         file.write(f"elements: {len(elements)}\n")
         file.write("nodes_list:\n")
         for node in nodes:
             file.write(f"{node[0]} {node[1]} {node[2]} {node[3]}\n")
 
-        file.write("element_list: 2D\n")
+        file.write("elements_list: 2D\n")
         for element in elements:
             file.write(f"{element[0]} {element[1]} {element[2]} {element[3]} {element[4]}\n")
 
@@ -40,4 +43,4 @@ def generate_dat_file(model_name, nelx, nely, domain_size):
         file.write("end")
 
 # 示例调用
-generate_dat_file("mesh_model", 30, 10, (0, 0, 30, 10))
+generate_dat_file("mesh_model", 2.1e5, 0.3, 2, 30, 10, (0, 0, 30, 10))
