@@ -9,10 +9,13 @@
             ],
             "defines": [],
             "cStandard": "c17",
-            "cppStandard": "gnu++17",
+            "cppStandard": "c++17",
             "intelliSenseMode": "linux-gcc-x64",
             "configurationProvider": "ms-vscode.makefile-tools",
-            "compilerPath": "/usr/bin/clang++-14"
+            "compilerPath": "/usr/bin/g++",
+            "compilerArgs": [
+                "-std=c++14"
+            ]
         }
     ],
     "version": 4

@@ -3,7 +3,7 @@
 #include <fstream>
 #include <string>
 #include <sstream>
-#include "g++14.h"
+
 
 int main()
 {   
@@ -34,6 +34,7 @@ int main()
              for (int i = 0; i < num_of_nodes; ++i) {
                 getline(datFile, subline);
                 istringstream is(subline);
+                point.push_back(make_unique<nodes>());
                 is >> point[i]->nodes_id >> point[i]->node_coordinate[0] >> point[i]->node_coordinate[1];
             }
         } 
