@@ -53,8 +53,8 @@ def plot_elements(nodes, elements, model_name, save_path, dpi=600):
     plt.savefig(save_path, bbox_inches='tight', dpi=dpi)
 
 if __name__ == "__main__":
-    dat_file_path = "./mesh_model.dat"
-    save_path = "./mesh_model.png"
+    dat_file_path = "./clip.dat"
+    save_path = "./clip.png"
     model_name = "triangle"
     nodes, elements = read_dat_file(dat_file_path)
     plot_elements(nodes, elements, model_name, save_path, dpi=300)
