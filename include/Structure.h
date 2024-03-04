@@ -9,6 +9,12 @@
 #include <Eigen/SparseCore>
 #include <Eigen/IterativeLinearSolvers>
 
+#include <string>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <iostream>
+#include <fstream>
+
 using namespace std;
 
 class nodes
@@ -16,40 +22,35 @@ class nodes
 public:
     int id;
     vector<double> coordinate;
+    vector<double> displacement;
     nodes();
     ~nodes();
-    vector<double> velocity;
-    vector<double> acceleration;
-    
 };
 
-class cell_face // means line in 2D
-{
-public:
-    int face_num; // means line number of the face
-    vector<int> face_node;
-    double length, old_length;
-    bool is_live;
-};
+// class cell_face // means line in 2D
+// {
+// public:
+//     int face_num; // means line number of the face
+//     vector<int> face_node;
+
+// };
 
 class cell_structure
 {
 public: 
     int id;
     vector<int> cell_node;
-    vector<vector<double>> ke;
-    vector<cell_face> face;
+    vector<vector<vector<double>>> ke; // 引用可以减少内存的使用，但是必须在构造函数中初始化
+    // vector<cell_face> face;
     vector<int> reflect;
 
     cell_structure();
     ~cell_structure();
-    void Initial(int& it, double& E, double& nu, int& gaus_sum,
+    void Initial(double& E, double& nu, int& gaus_sum,
     const vector<nodes>& node, const vector<int>& cell);
-    
 
     vector<vector<double>> location;
 };
-
 
 class tria
 {
@@ -73,6 +74,8 @@ public:
     Eigen::SparseMatrix<double> diagonalmatrix_one;
     Eigen::SparseMatrix<double> diagonalmatrix_two;
 
-    void read_dat_file(const string& datFilePath);
+    void Read_dat_file(const string& datFilePath);
+    void ComputeObjective();
+    void Output();
 };
 

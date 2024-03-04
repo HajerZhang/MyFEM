@@ -41,9 +41,3 @@ $(shell mkdir -p $(BUILD_DIR))
 # Clean up
 clean:
 	rm -rf $(BUILD_DIR) $(TARGET) $(TARGET_DEBUG)
-
-p:
-	python3 plot.py
-
-cleandata:
-	rm ./data/*.txt ./plot/*.png ./plot/*.gif

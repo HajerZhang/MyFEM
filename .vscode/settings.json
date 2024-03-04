@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.cpp": "cpp",
         "*.h": "cpp",
         ".rb_csv_preview.head.sign_mnist_train.csv": "csv",
         "array": "cpp",
@@ -66,6 +67,7 @@
         "set": "cpp",
         "semaphore": "cpp",
         "stop_token": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "cinttypes": "cpp"
     }
 }

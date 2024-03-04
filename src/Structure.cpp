@@ -1,12 +1,9 @@
 #include "Structure.h"
-#include <fstream>
-#include <string>
-#include <sstream>
-#include <iostream>
+#include "gauss.h"
 
 using namespace std;
 
-void tria::read_dat_file(const string& datFilePath)
+void tria::Read_dat_file(const string& datFilePath)
 {   
     ifstream datFile(datFilePath);
     if (!datFile.is_open()) {
@@ -102,7 +99,7 @@ void tria::read_dat_file(const string& datFilePath)
     // cout << "nu: " << nu << endl;
     // cout << "gauss_num: " << gauss_num << endl;
     // for (int i = 0; i < node_sum; ++i) {
-    //     cout << point[i].id << " " << point[i].coordinate[0] << " " << point[i].coordinate[1] << endl;
+    //     cout << point[i].id << " " << point[i].coordinate[0] << " " << point[i].coordinate[1] << " 0"<< endl;
     // }
     // for (int i = 0; i < cell_sum; ++i) {
     //     cout << cell[i].id << " " << cell[i].cell_node[0] << " " << cell[i].cell_node[1] << " " << cell[i].cell_node[2] << " " << cell[i].cell_node[3] << endl;
@@ -116,7 +113,7 @@ void tria::read_dat_file(const string& datFilePath)
     
     // element initial
     for (int i = 0; i < cell_sum; i++) {
-        cell[i].Initial(i, E, nu, gauss_num, point, cell[i].cell_node);
+        cell[i].Initial(E, nu, gauss_num, point, cell[i].cell_node);
     }
 
     // load setting
@@ -135,18 +132,137 @@ void tria::read_dat_file(const string& datFilePath)
     diagonalmatrix_one = xx.asDiagonal();
 	diagonalmatrix_two = yy.asDiagonal();
 
+    
 }
 
-void cell_structure::Initial(int& it, double& E, double& nu, int& gaus_sum,
+
+void cell_structure::Initial(double& E, double& nu, int& gaus_sum,
     const vector<nodes>& node, const vector<int>& cell)
 {
+    ke.resize(pow(gaus_sum, 2), vector<vector<double>>(8, vector<double>(8, 0.0)));
+    reflect.resize(8, 0);
+    location.resize(pow(gaus_sum, 2), vector<double>(2, 0.0));
+    gauss_iso* aaa;
+    vector<double> x1{ node[cell[0] - 1].coordinate[0], node[cell[1] - 1].coordinate[0], 
+                        node[cell[2] - 1].coordinate[0], node[cell[3] - 1].coordinate[0] };
+	vector<double> y1{ node[cell[0] - 1].coordinate[1], node[cell[1] - 1].coordinate[1], 
+                        node[cell[2] - 1].coordinate[1], node[cell[3] - 1].coordinate[1] };
+	vector<double> z1;
+    aaa = new gauss_iso(ke, E, nu, gaus_sum, x1, y1, z1);
+    aaa->compute(location);
+    vector<vector<double>> keke(8, vector<double>(8, 0.0));
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
+			keke[i][j] += ke[0][i][j] + ke[1][i][j] + ke[2][i][j] + ke[3][i][j];
+		}
+	}
+    reflect[0] = 2 * cell[1] - 1;
+	reflect[1] = 2 * cell[1];
+	reflect[2] = 2 * cell[2] - 1;
+	reflect[3] = 2 * cell[2];
+	reflect[4] = 2 * cell[3] - 1;
+	reflect[5] = 2 * cell[3];
+	reflect[6] = 2 * cell[0] - 1;
+	reflect[7] = 2 * cell[0];
+}
+
+void tria::ComputeObjective()
+{
+    int gaussnum = pow(2, 2);  //高斯积分点数
+    int cellndofs = 2 * pow(2, 2);  //一个单元的自由度数
+    typedef Eigen::Triplet<double> T;
+    vector<T> tripletList;
+    tripletList.reserve(cell_sum * gaussnum * cellndofs * cellndofs);
+    for (int itt = 0; itt < cell_sum; itt++) {
+        //遍历itt号单元的单刚所有元素
+        for (int k = 0; k < gaussnum; k++) {
+            for (int i = 0; i < cellndofs; i++) {
+                for (int j = 0; j < cellndofs; j++) {
+                    tripletList.push_back(T(cell[itt].reflect[i] - 1, cell[itt].reflect[j] - 1,   E * cell[itt].ke[k][i][j]));
+                }
+            }
+        }
+    }
+    Eigen::SparseMatrix<double> K_global(ndof, ndof);
+
+    K_global.reserve(ndof * 81);
+    K_global.setFromTriplets(tripletList.begin(), tripletList.end());
+    K_global = diagonalmatrix_one * K_global * diagonalmatrix_one + diagonalmatrix_two;
+
+    Eigen::SparseVector<double> U;
+
+    Eigen::SparseLU<Eigen::SparseMatrix<double>, Eigen::COLAMDOrdering<int>> solver;
+    solver.analyzePattern(K_global);
+    solver.factorize(K_global);
+    U = solver.solve(F);
+
+    for(int i = 0; i < node_sum; i++)
+    {
+        point[i].displacement[0] = U.coeffRef(2 * i);
+        point[i].displacement[1] = U.coeffRef(2 * i + 1);
+    }
+
+}
+
+void tria::Output()
+{
+    using namespace std;
     
-    
+    const char* folderPath = "./Result";
+
+    // Check if the "data" folder exists, create it if not
+    struct stat info;
+    if (stat(folderPath, &info) != 0 || !(info.st_mode & S_IFDIR)) {
+        // Folder doesn't exist, create it
+        if (mkdir(folderPath, 0777) != 0) {
+            cerr << "Error creating directory: " << folderPath << std::endl;
+            return;
+        }
+    }
+
+    string filename = "./Result/result.vtk";
+    ofstream outputFile(filename);
+
+    if (!outputFile.is_open()) {
+        cerr << "Error opening file: " << filename << std::endl;
+        return;
+    }
+
+    outputFile << "# vtk DataFile Version 3.0" << endl;
+    outputFile << "vtk output" << endl;
+    outputFile << "ASCII" << endl;
+    outputFile << "DATASET POLYDATA" << endl;
+    outputFile << "POINTS " << node_sum << " float" << endl;
+    for(int i = 0; i < node_sum; i++)
+    {
+        outputFile << point[i].coordinate[0] << " " << point[i].coordinate[1] << " " << 0 << endl;
+    }
+    outputFile << "POLYGONS " << cell_sum << " " << cell_sum * 5 << endl;
+    for(int i = 0; i < cell_sum; i++)
+    {   
+        // number start from 0 in vtk file, need to minus 1
+        outputFile << 4 << " " << cell[i].cell_node[0]-1 << " " << cell[i].cell_node[1]-1 << " " << cell[i].cell_node[2]-1 << " " << cell[i].cell_node[3]-1 << endl;
+    }
+    outputFile << "POINT_DATA " << node_sum << endl;
+    outputFile << "VECTORS displacement float" << endl;
+    for(int i = 0; i < node_sum; i++)
+    {
+        outputFile << point[i].displacement[0] << " " << point[i].displacement[1] << " " << 0 << endl;
+    }
+    // outputFile << "CELL_DATA " << cell_sum << endl;
+    // outputFile << "SCALARS density float" << endl;
+    // outputFile << "LOOKUP_TABLE default" << endl;
+    // for(int i = 0; i < nele; i++)
+    // {
+    //     outputFile << x(i) << endl;
+    // }
+    outputFile.close();
 }
 
 nodes::nodes()
 {
     coordinate.resize(2);
+    displacement.resize(2);
 }
 
 nodes::~nodes()
