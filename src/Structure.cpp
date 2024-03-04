@@ -220,7 +220,7 @@ void tria::Output()
         }
     }
 
-    string filename = "./Result/result.vtk";
+    string filename = "./Results/result.vtk";
     ofstream outputFile(filename);
 
     if (!outputFile.is_open()) {
