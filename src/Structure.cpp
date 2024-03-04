@@ -208,7 +208,7 @@ void tria::Output()
 {
     using namespace std;
     
-    const char* folderPath = "./Result";
+    const char* folderPath = "./Results";
 
     // Check if the "data" folder exists, create it if not
     struct stat info;

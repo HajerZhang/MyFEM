@@ -14,7 +14,7 @@ int main()
     // structure object
     tria triangulation;
     // read dat file
-    triangulation.Read_dat_file(inputdataPath+"test.dat");
+    triangulation.Read_dat_file(inputdataPath+"clip.dat");
     // compute of linear elastic structure
     triangulation.ComputeObjective();
     triangulation.Output();
