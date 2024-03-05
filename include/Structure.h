@@ -40,7 +40,7 @@ class cell_structure
 public: 
     int id;
     vector<int> cell_node;
-    vector<vector<vector<double>>> ke; // 引用可以减少内存的使用，但是必须在构造函数中初始化
+    vector<vector<vector<double>>> ke;
     // vector<cell_face> face;
     vector<int> reflect;
 
