@@ -34,7 +34,6 @@ gauss_iso::gauss_iso(vector<vector<vector<double>>>& keke, double& e,
 	B.resize(8, vector<double>(3, 0.0));
 }
 
-
 void gauss_iso::compute(vector<vector<double>>& location) {
 	int ii = 0;
 	for (int i = 0; i < gauss_num; i++) {

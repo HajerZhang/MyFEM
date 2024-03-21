@@ -43,4 +43,4 @@ def generate_dat_file(model_name, E, nu, gauss, nelx, nely, domain_size):
         file.write("end")
 
 # 示例调用
-generate_dat_file("mesh_model", 2.1e5, 0.3, 2, 30, 10, (0, 0, 30, 10))
+generate_dat_file("mesh_model", 2.1e5, 0.3, 2, 2, 2, (0, 0, 2, 2))

@@ -75,7 +75,7 @@ public:
     Eigen::SparseMatrix<double> diagonalmatrix_two;
 
     void Read_dat_file(const string& datFilePath);
-    void ComputeObjective();
+    void Compute();
     void Output();
 };
 

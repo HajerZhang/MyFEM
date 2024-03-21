@@ -132,6 +132,7 @@ void tria::Read_dat_file(const string& datFilePath)
     diagonalmatrix_one = xx.asDiagonal();
 	diagonalmatrix_two = yy.asDiagonal();
 
+    cout << endl;
     
 }
 
@@ -166,15 +167,14 @@ void cell_structure::Initial(double& E, double& nu, int& gaus_sum,
 	reflect[7] = 2 * cell[0];
 }
 
-void tria::ComputeObjective()
+void tria::Compute()
 {
-    int gaussnum = pow(2, 2);  //高斯积分点数
-    int cellndofs = 2 * pow(2, 2);  //一个单元的自由度数
+    int gaussnum = pow(2, 2);
+    int cellndofs = 2 * pow(2, 2);
     typedef Eigen::Triplet<double> T;
     vector<T> tripletList;
     tripletList.reserve(cell_sum * gaussnum * cellndofs * cellndofs);
     for (int itt = 0; itt < cell_sum; itt++) {
-        //遍历itt号单元的单刚所有元素
         for (int k = 0; k < gaussnum; k++) {
             for (int i = 0; i < cellndofs; i++) {
                 for (int j = 0; j < cellndofs; j++) {
